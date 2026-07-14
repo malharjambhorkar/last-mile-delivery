@@ -6,6 +6,56 @@ Fleetly is a delivery app for running last-mile delivery operations. It combines
 
 Explore the deployed application: [last-mile-delivery-kappa.vercel.app](https://last-mile-delivery-kappa.vercel.app/)
 
+## Screenshots
+
+### Homepage hero
+
+The light-themed landing experience introduces Fleetly and gives visitors immediate access to the operations console or customer tracking.
+
+<img width="1837" alt="Fleetly homepage hero with delivery app visual" src="https://github.com/user-attachments/assets/3e907685-652b-4976-8226-3f3869393cc4" />
+
+### Live network metrics and platform overview
+
+Live delivery metrics, trusted-operations proof points, and a clear transition into the core platform features.
+
+<img width="1725" alt="Fleetly live network metrics and platform overview" src="https://github.com/user-attachments/assets/6fce7a54-57c5-4763-bf64-3384145c045f" />
+
+### Interactive Routing AI
+
+An interactive route planner accepts pickup and drop-off locations, then presents route timing, distance, stops, and optimization results.
+
+<img width="1477" alt="Fleetly interactive Routing AI demo" src="https://github.com/user-attachments/assets/3e930da2-6eed-4c15-a85a-1f8237d45765" />
+
+### Customer delivery tracking
+
+Customers can search an order, see a live route, check their delivery window, and view driver information without an app download.
+
+<img width="1600" alt="Fleetly customer delivery tracking experience" src="https://github.com/user-attachments/assets/f0853c0f-5dcc-43ff-805a-e23debcc7721" />
+
+### Flexible pricing
+
+Starter, Growth, and Enterprise plans present the product’s delivery-operations value at different fleet scales.
+
+<img width="1347" alt="Fleetly pricing plans" src="https://github.com/user-attachments/assets/d68dcf99-ea56-4820-922c-9d75d02400ea" />
+
+### Demo request
+
+A simple demo request form captures the company and fleet details needed for a sales follow-up.
+
+<img width="1302" alt="Fleetly demo request form" src="https://github.com/user-attachments/assets/7c189cf8-fa81-49bd-bb99-db506483b86c" />
+
+### Operations dashboard
+
+The operations console provides delivery KPIs, revenue analysis, driver availability, fleet insights, and configurable widgets.
+
+<img width="1890" alt="Fleetly operations dashboard" src="https://github.com/user-attachments/assets/932f0f6c-42bc-4139-8d3b-7390c071e145" />
+
+### Delivery analytics
+
+Fuel consumption and delivery heatmaps help operations teams understand demand patterns and route performance.
+
+<img width="1891" alt="Fleetly delivery analytics dashboard" src="https://github.com/user-attachments/assets/abd4baa0-c11f-4364-9f0a-ba57ec07f878" />
+
 ## Highlights
 
 - Interactive AI route planner with animated route results and delivery metrics.
