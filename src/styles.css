@@ -1,0 +1,4 @@
+:root { font-synthesis: none; }
+html { scroll-behavior: smooth; background: #f7fbf7; }
+body { margin: 0; min-width: 320px; }
+button, input, select { font: inherit; }

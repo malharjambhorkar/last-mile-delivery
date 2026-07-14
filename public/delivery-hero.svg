@@ -1,0 +1,42 @@
+<svg width="920" height="760" viewBox="0 0 920 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="920" height="760" rx="48" fill="#54C779"/>
+  <path d="M0 0H220L530 310V760H0V0Z" fill="#37B968" opacity=".72"/>
+  <circle cx="724" cy="144" r="118" fill="#9AE7B0" opacity=".55"/>
+  <path d="M652 674C717 590 803 578 920 589V760H570L652 674Z" fill="#1D9C58" opacity=".2"/>
+  <g transform="translate(100 180) rotate(-12 145 260)">
+    <rect x="0" y="0" width="290" height="530" rx="38" fill="#1D2922"/>
+    <rect x="11" y="11" width="268" height="508" rx="30" fill="#5ED181"/>
+    <rect x="84" y="22" width="122" height="26" rx="13" fill="#18231D"/>
+    <circle cx="145" cy="235" r="62" stroke="white" stroke-width="7" opacity=".9"/>
+    <path d="M101 255L128 219L151 270L181 199L195 255" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="145" y="340" fill="white" font-family="Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle">Deliver</text>
+  </g>
+  <g transform="translate(400 46) rotate(-7 170 325)">
+    <rect x="0" y="0" width="340" height="650" rx="48" fill="#17231C"/>
+    <rect x="13" y="13" width="314" height="624" rx="39" fill="#FCFFFC"/>
+    <rect x="105" y="25" width="130" height="31" rx="15" fill="#17231C"/>
+    <text x="44" y="90" fill="#217947" font-family="Arial, sans-serif" font-size="15" font-weight="700">‹ Back</text>
+    <text x="38" y="150" fill="#233D2C" font-family="Arial, sans-serif" font-size="22" font-weight="700">Choose your vehicle</text>
+    <g transform="translate(31 183)">
+      <rect width="276" height="96" rx="15" fill="#F3FAF5" stroke="#B9E7C8"/>
+      <circle cx="36" cy="48" r="19" fill="#55C875" opacity=".35"/>
+      <path d="M27 50H48M31 42L25 50L31 58M44 42L51 50L44 58" stroke="#1A8E50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="75" y="39" fill="#203A29" font-family="Arial, sans-serif" font-size="15" font-weight="700">Bike delivery</text>
+      <text x="75" y="62" fill="#168C4B" font-family="Arial, sans-serif" font-size="13">Arrives in 25 min</text>
+    </g>
+    <g transform="translate(31 295)">
+      <rect width="276" height="96" rx="15" fill="white" stroke="#DDEDE1"/>
+      <circle cx="36" cy="48" r="19" fill="#55C875" opacity=".28"/>
+      <path d="M25 54H51L46 43H30L25 54Z" stroke="#1A8E50" stroke-width="3" stroke-linejoin="round"/>
+      <text x="75" y="39" fill="#203A29" font-family="Arial, sans-serif" font-size="15" font-weight="700">Courier van</text>
+      <text x="75" y="62" fill="#168C4B" font-family="Arial, sans-serif" font-size="13">Arrives in 18 min</text>
+    </g>
+    <g transform="translate(31 407)">
+      <rect width="276" height="96" rx="15" fill="white" stroke="#DDEDE1"/>
+      <circle cx="36" cy="48" r="19" fill="#55C875" opacity=".22"/>
+      <path d="M24 54H51L46 42H30L24 54Z" stroke="#1A8E50" stroke-width="3" stroke-linejoin="round"/>
+      <text x="75" y="39" fill="#203A29" font-family="Arial, sans-serif" font-size="15" font-weight="700">Electric car</text>
+      <text x="75" y="62" fill="#168C4B" font-family="Arial, sans-serif" font-size="13">Arrives in 15 min</text>
+    </g>
+  </g>
+</svg>
