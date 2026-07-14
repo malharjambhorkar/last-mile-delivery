@@ -2,6 +2,10 @@
 
 Fleetly is a delivery app for running last-mile delivery operations. It combines a high-conversion marketing site, interactive route optimization, customer shipment tracking, authentication flows, and an operations dashboard in one responsive application.
 
+## Live deployment
+
+Explore the deployed application: [last-mile-delivery-kappa.vercel.app](https://last-mile-delivery-kappa.vercel.app/)
+
 ## Highlights
 
 - Interactive AI route planner with animated route results and delivery metrics.
@@ -32,6 +36,8 @@ fleetly-last-mile-delivery/
 ├── package.json                # Scripts and dependencies
 └── README.md                   # Project guide
 ```
+
+Additional delivery-platform implementation notes are in [docs/api.md](docs/api.md) and [docs/system-design.md](docs/system-design.md). Copy [.env.example](.env.example) before connecting a backend.
 
 ## Getting started
 

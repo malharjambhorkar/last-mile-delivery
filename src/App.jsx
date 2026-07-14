@@ -146,6 +146,35 @@ const DRIVER_STATUS_DATA = [
 const SLA_VALUE = 97;
 
 /* ============================================================ */
+/*  DELIVERY DOMAIN — CONFIGURABLE ZONES, RATE CARDS, PRICING   */
+/* ============================================================ */
+const DEFAULT_ZONES = [
+  { id: 'Z-AUS', name: 'Austin Central', areas: ['Austin', 'North Loop', 'Downtown'] },
+  { id: 'Z-DEN', name: 'Denver Metro', areas: ['Denver', 'Aurora', 'Lakewood'] },
+  { id: 'Z-PDX', name: 'Portland Metro', areas: ['Portland', 'Beaverton', 'Gresham'] },
+  { id: 'Z-OTHER', name: 'National', areas: [] },
+];
+const DEFAULT_RATE_CARDS = {
+  B2C: { intra: { base: 8, perKg: 1.25 }, inter: { base: 15, perKg: 2.1 }, cod: 3.5 },
+  B2B: { intra: { base: 11, perKg: 1.6 }, inter: { base: 21, perKg: 2.75 }, cod: 5 },
+};
+function detectZone(address, zones = DEFAULT_ZONES) {
+  const value = (address || '').toLowerCase();
+  return zones.find(zone => zone.areas.some(area => value.includes(area.toLowerCase()))) || zones.find(zone => zone.id === 'Z-OTHER') || zones[zones.length - 1];
+}
+function calculateDeliveryCharge({ pickup, delivery, length, breadth, height, actualWeight, orderType = 'B2C', paymentType = 'Prepaid' }, zones = DEFAULT_ZONES, rateCards = DEFAULT_RATE_CARDS) {
+  const pickupZone = detectZone(pickup, zones);
+  const deliveryZone = detectZone(delivery, zones);
+  const volumetricWeight = (Number(length || 0) * Number(breadth || 0) * Number(height || 0)) / 5000;
+  const billableWeight = Math.max(Number(actualWeight || 0), volumetricWeight);
+  const lane = pickupZone.id === deliveryZone.id ? 'intra' : 'inter';
+  const card = rateCards[orderType][lane];
+  const codSurcharge = paymentType === 'COD' ? rateCards[orderType].cod : 0;
+  const transportCharge = card.base + (billableWeight * card.perKg);
+  return { pickupZone, deliveryZone, lane, volumetricWeight, billableWeight, transportCharge, codSurcharge, total: transportCharge + codSurcharge };
+}
+
+/* ============================================================ */
 /*  GLOBAL STYLE                                                 */
 /* ============================================================ */
 function GlobalStyle() {
@@ -508,7 +537,7 @@ function useLiveCounter(target, decimals = 0) {
   return val.toFixed(decimals);
 }
 
-function Hero({ onSignup }) {
+function Hero({ onSignup, onExplore }) {
   return (
     <header style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderBottom: `1px solid ${C.border}`, background: 'radial-gradient(circle at 85% 20%, #ddf8e7 0, transparent 28%), linear-gradient(135deg, #f9fdf9, #edf8ef)' }}>
       <div className="hero-content" style={{ position: 'relative', zIndex: 2, flex: 1, maxWidth: 1220, width: '100%', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.02fr .98fr', alignItems: 'center', gap: '2rem', padding: '8rem 1.5rem 4rem' }}>
@@ -521,7 +550,7 @@ function Hero({ onSignup }) {
           Fleetly unifies dispatch, fleet, warehouse and last-mile tracking into one AI-driven platform — built for teams moving thousands of packages a day.
         </p>
         <div className="ls-fadeup" style={{ display: 'flex', gap: '1rem', marginTop: '2.4rem', animationDelay: '.65s', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Btn size="lg" onClick={onSignup} icon={Play}>Book a demo</Btn>
+          <Btn size="lg" onClick={onExplore} icon={Play}>Explore operations console</Btn>
           <Btn size="lg" variant="ghost" onClick={() => document.getElementById('customer-tracking')?.scrollIntoView({ behavior: 'smooth' })}>Track a delivery</Btn>
         </div>
         <div className="ls-fadeup" style={{ display: 'flex', gap: '.9rem', marginTop: '1.6rem', animationDelay: '.8s', alignItems: 'center', color: C.faint, fontSize: '.85rem' }}>
@@ -802,7 +831,7 @@ function PremiumFooter({ onSignup }) {
   );
 }
 
-function LandingPage({ onLogin, onSignup }) {
+function LandingPage({ onLogin, onSignup, onExplore }) {
   useEffect(() => {
     const sections = document.querySelectorAll('[data-reveal-section]');
     const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } }), { threshold: 0.13 });
@@ -812,7 +841,7 @@ function LandingPage({ onLogin, onSignup }) {
   return (
     <div>
       <Nav onLogin={onLogin} onSignup={onSignup} />
-      <Hero onSignup={onSignup} />
+      <Hero onSignup={onSignup} onExplore={onExplore} />
       <div data-reveal-section><LogosStrip /></div>
       <FeaturesSection />
       <CustomerTrackingSection />
@@ -988,6 +1017,7 @@ const NAV_ITEMS = [
   { id: 'routeopt', label: 'Route Optimization', icon: Route },
   { id: 'fleet', label: 'Fleet', icon: Truck },
   { id: 'dispatch', label: 'Dispatch', icon: Radio },
+  { id: 'configuration', label: 'Zones & rates', icon: Settings },
 ];
 
 function Sidebar({ active, setActive, collapsed, setCollapsed, onLogout }) {
@@ -1221,11 +1251,12 @@ function DashboardModule() {
 /* ============================================================ */
 /*  ORDERS MODULE                                                */
 /* ============================================================ */
-function CreateOrderForm({ onClose, onCreate, initial }) {
+function CreateOrderForm({ onClose, onCreate, initial, zones = DEFAULT_ZONES, rateCards = DEFAULT_RATE_CARDS }) {
   const [step, setStep] = useState(0);
-  const steps = ['Customer', 'Addresses', 'Package'];
-  const [form, setForm] = useState(initial || { customer: '', pickup: '', delivery: '', weight: '', dims: '', cod: false, priority: 'Standard', fragile: false, temp: false, insurance: false });
+  const steps = ['Customer', 'Addresses', 'Package', 'Quote'];
+  const [form, setForm] = useState(initial || { customer: '', pickup: '', delivery: '', actualWeight: '', length: '', breadth: '', height: '', orderType: 'B2C', paymentType: 'Prepaid', priority: 'Standard', fragile: false, temp: false, insurance: false });
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const quote = calculateDeliveryCharge(form, zones, rateCards);
   return (
     <div>
       <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1.6rem' }}>
@@ -1244,6 +1275,10 @@ function CreateOrderForm({ onClose, onCreate, initial }) {
               <option>Standard</option><option>Priority</option><option>Express</option>
             </Select>
           </Field>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <Field label="Order type"><Select value={form.orderType} onChange={e => set('orderType', e.target.value)}><option>B2C</option><option>B2B</option></Select></Field>
+            <Field label="Payment type"><Select value={form.paymentType} onChange={e => set('paymentType', e.target.value)}><option>Prepaid</option><option>COD</option></Select></Field>
+          </div>
         </div>
       )}
       {step === 1 && (
@@ -1255,7 +1290,10 @@ function CreateOrderForm({ onClose, onCreate, initial }) {
       {step === 2 && (
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <Field label="Weight (lbs)"><TextInput value={form.weight} onChange={e => set('weight', e.target.value)} type="number" placeholder="45" /></Field>
+            <Field label="Actual weight (kg)"><TextInput value={form.actualWeight} onChange={e => set('actualWeight', e.target.value)} type="number" placeholder="12" /></Field>
+            <Field label="Length (cm)"><TextInput value={form.length} onChange={e => set('length', e.target.value)} type="number" placeholder="40" /></Field>
+            <Field label="Breadth (cm)"><TextInput value={form.breadth} onChange={e => set('breadth', e.target.value)} type="number" placeholder="30" /></Field>
+            <Field label="Height (cm)"><TextInput value={form.height} onChange={e => set('height', e.target.value)} type="number" placeholder="25" /></Field>
             <Field label="Dimensions (in)"><TextInput value={form.dims} onChange={e => set('dims', e.target.value)} placeholder="24×18×12" /></Field>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '.8rem', marginTop: '.6rem', marginBottom: '1.4rem' }}>
@@ -1266,9 +1304,19 @@ function CreateOrderForm({ onClose, onCreate, initial }) {
           </div>
         </div>
       )}
+      {step === 3 && (
+        <div className="ls-fadeup">
+          <div style={{ background: C.cardAlt, border: `1px solid ${C.accentBorder}`, borderRadius: 14, padding: '1.1rem' }}>
+            <p style={{ color: C.accent, fontSize: '.73rem', fontWeight: 700, letterSpacing: '.08em' }}>CHARGE PREVIEW — CONFIRM BEFORE CREATING</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.8rem', marginTop: '.9rem', fontSize: '.84rem', color: C.mute }}><span>Pickup zone: <strong style={{ color: C.text }}>{quote.pickupZone.name}</strong></span><span>Drop zone: <strong style={{ color: C.text }}>{quote.deliveryZone.name}</strong></span><span>Lane: <strong style={{ color: C.text, textTransform: 'capitalize' }}>{quote.lane}-zone</strong></span><span>Volumetric weight: <strong style={{ color: C.text }}>{quote.volumetricWeight.toFixed(2)} kg</strong></span><span>Billable weight: <strong style={{ color: C.text }}>{quote.billableWeight.toFixed(2)} kg</strong></span><span>COD surcharge: <strong style={{ color: C.text }}>${quote.codSurcharge.toFixed(2)}</strong></span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: `1px solid ${C.border}`, marginTop: '1rem', paddingTop: '.8rem' }}><span style={{ fontWeight: 600 }}>Total delivery charge</span><strong style={{ fontFamily: FONT_GEN, fontSize: '1.55rem', color: C.accent }}>${quote.total.toFixed(2)}</strong></div>
+          </div>
+          <p style={{ color: C.faint, fontSize: '.76rem', lineHeight: 1.5, marginTop: '.8rem' }}>Higher of actual and volumetric weight is billed. Rates and COD surcharge come from the active rate card.</p>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
         <Btn variant="ghost" onClick={() => step === 0 ? onClose() : setStep(step - 1)}>{step === 0 ? 'Cancel' : 'Back'}</Btn>
-        {step < 2 ? <Btn onClick={() => setStep(step + 1)} icon={ArrowRight}>Continue</Btn> : <Btn onClick={() => { onCreate(form); onClose(); }} icon={CheckCircle2}>Create order</Btn>}
+        {step < 3 ? <Btn onClick={() => setStep(step + 1)} icon={ArrowRight}>Continue</Btn> : <Btn onClick={() => { onCreate({ ...form, quote }); onClose(); }} icon={CheckCircle2}>Confirm & create</Btn>}
       </div>
     </div>
   );
@@ -1320,6 +1368,7 @@ function OrdersModule() {
 
   const cloneOrder = (o) => setOrders(list => [{ ...o, id: `LS-${10000 + Math.floor(Math.random() * 9000)}`, status: 'Pending' }, ...list]);
   const deleteOrder = (id) => setOrders(list => list.filter(o => o.id !== id));
+  const addPricedOrder = (form) => setOrders(list => [{ id: `LS-${10000 + Math.floor(Math.random() * 9000)}`, customer: form.customer || 'New Customer', pickup: form.pickup || 'Unassigned', delivery: form.delivery || 'Unassigned', weight: form.quote?.billableWeight || form.actualWeight || 0, status: 'Pending', priority: form.priority, cod: form.paymentType === 'COD', fragile: form.fragile, tempControlled: form.temp, insured: form.insurance, value: form.quote?.total || 0, eta: 'Auto-assignment queued', orderType: form.orderType, paymentType: form.paymentType, pickupZone: form.quote?.pickupZone.name, deliveryZone: form.quote?.deliveryZone.name, history: [{ status: 'Pending', timestamp: new Date().toISOString(), actor: 'Admin' }] }, ...list]);
   const addOrder = (form) => setOrders(list => [{ id: `LS-${10000 + Math.floor(Math.random() * 9000)}`, customer: form.customer || 'New Customer', pickup: form.pickup || '—', delivery: form.delivery || '—', weight: form.weight || 0, status: 'Pending', priority: form.priority, cod: form.cod, fragile: form.fragile, tempControlled: form.temp, insured: form.insurance, value: 0, eta: '—' }, ...list]);
 
   return (
@@ -1341,7 +1390,7 @@ function OrdersModule() {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.85rem', minWidth: 900 }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${C.border}`, color: C.faint, textAlign: 'left' }}>
-              {['Order ID', 'Customer', 'Route', 'Weight', 'Priority', 'Flags', 'Status', 'ETA', ''].map(h => <th key={h} style={{ padding: '.9rem 1rem', fontWeight: 500 }}>{h}</th>)}
+              {['Order ID', 'Customer', 'Route', 'Billable wt.', 'Charge', 'Priority', 'Flags', 'Status', 'ETA', ''].map(h => <th key={h} style={{ padding: '.9rem 1rem', fontWeight: 500 }}>{h}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -1350,7 +1399,8 @@ function OrdersModule() {
                 <td style={{ padding: '.85rem 1rem', fontFamily: FONT_GEN }}>{o.id}</td>
                 <td style={{ padding: '.85rem 1rem' }}>{o.customer}</td>
                 <td style={{ padding: '.85rem 1rem', color: C.mute, fontSize: '.8rem' }}>{o.pickup} <ArrowRight size={11} style={{ display: 'inline', margin: '0 .2rem' }} /> {o.delivery}</td>
-                <td style={{ padding: '.85rem 1rem' }}>{o.weight} lbs</td>
+                <td style={{ padding: '.85rem 1rem' }}>{o.weight} kg</td>
+                <td style={{ padding: '.85rem 1rem', fontWeight: 700, color: o.value ? C.accent : C.faint }}>{o.value ? `$${Number(o.value).toFixed(2)}` : '—'}</td>
                 <td style={{ padding: '.85rem 1rem' }}><Badge tone={o.priority === 'Express' ? 'danger' : o.priority === 'Priority' ? 'warn' : 'default'}>{o.priority}</Badge></td>
                 <td style={{ padding: '.85rem 1rem' }}>
                   <div style={{ display: 'flex', gap: '.35rem' }}>
@@ -1378,7 +1428,7 @@ function OrdersModule() {
       <p style={{ color: C.faint, fontSize: '.78rem', marginTop: '.8rem' }}>Showing {Math.min(12, filtered.length)} of {filtered.length} orders</p>
 
       <Modal open={createOpen} onClose={() => setCreateOpen(false)} title={editing ? `Edit order ${editing.id}` : 'Create a new order'}>
-        <CreateOrderForm onClose={() => setCreateOpen(false)} onCreate={addOrder} initial={editing} />
+        <CreateOrderForm onClose={() => setCreateOpen(false)} onCreate={addPricedOrder} initial={editing} />
       </Modal>
       <BulkUploadModal open={bulkOpen} onClose={() => setBulkOpen(false)} />
     </div>
@@ -1788,6 +1838,25 @@ function DispatchModule() {
 }
 
 /* ============================================================ */
+/*  ZONE AND RATE ADMINISTRATION                                 */
+/* ============================================================ */
+function ZonesAndRatesModule() {
+  const [zones, setZones] = useState(DEFAULT_ZONES);
+  const [cards, setCards] = useState(DEFAULT_RATE_CARDS);
+  const [saved, setSaved] = useState(false);
+  const updateRate = (type, lane, key, value) => setCards(current => ({ ...current, [type]: { ...current[type], [lane]: { ...current[type][lane], [key]: Number(value) } } }));
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+      <Card><div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}><div><h3 style={{ fontFamily: FONT_GEN, fontSize: '1.05rem' }}>Pricing configuration</h3><p style={{ color: C.mute, fontSize: '.83rem', marginTop: '.35rem' }}>Rates are evaluated by detected pickup/drop zones, order type and billable weight. Volumetric weight uses L × B × H ÷ 5000.</p></div><Btn size="sm" icon={CheckCircle2} onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}>{saved ? 'Saved' : 'Save rate cards'}</Btn></div></Card>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(330px,1fr))', gap: '1.2rem' }}>
+        {['B2C', 'B2B'].map(type => <Card key={type}><h3 style={{ fontFamily: FONT_GEN, fontSize: '1rem', marginBottom: '1rem' }}>{type} rate card</h3>{['intra', 'inter'].map(lane => <div key={lane} style={{ padding: '.8rem 0', borderTop: `1px solid ${C.border}` }}><p style={{ fontWeight: 700, fontSize: '.82rem', textTransform: 'capitalize', marginBottom: '.6rem' }}>{lane}-zone rates</p><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.6rem' }}><Field label="Base charge ($)"><TextInput type="number" value={cards[type][lane].base} onChange={e => updateRate(type, lane, 'base', e.target.value)} /></Field><Field label="Per kg ($)"><TextInput type="number" value={cards[type][lane].perKg} onChange={e => updateRate(type, lane, 'perKg', e.target.value)} /></Field></div></div>)}<Field label="COD surcharge per order ($)"><TextInput type="number" value={cards[type].cod} onChange={e => setCards(current => ({ ...current, [type]: { ...current[type], cod: Number(e.target.value) } }))} /></Field></Card>)}
+      </div>
+      <Card><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}><div><h3 style={{ fontFamily: FONT_GEN, fontSize: '1rem' }}>Zones and service areas</h3><p style={{ color: C.mute, fontSize: '.82rem', marginTop: '.3rem' }}>Address keywords are matched to the zone to choose intra- or inter-zone pricing.</p></div><Btn size="sm" variant="ghost" icon={Plus} onClick={() => setZones(items => [...items, { id: `Z-${items.length + 1}`, name: 'New zone', areas: [] }])}>Add zone</Btn></div><div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '.8rem' }}>{zones.map((zone, index) => <div key={zone.id} style={{ padding: '.9rem', border: `1px solid ${C.border}`, borderRadius: 12, background: C.cardAlt }}><TextInput value={zone.name} onChange={e => setZones(items => items.map((item, i) => i === index ? { ...item, name: e.target.value } : item))} /><p style={{ color: C.faint, fontSize: '.72rem', marginTop: '.6rem' }}>{zone.areas.length ? zone.areas.join(', ') : 'No area keywords yet'}</p><Badge tone="info">{zone.id}</Badge></div>)}</div></Card>
+    </div>
+  );
+}
+
+/* ============================================================ */
 /*  AUTHENTICATED APP SHELL                                      */
 /* ============================================================ */
 const MODULE_META = {
@@ -1797,6 +1866,7 @@ const MODULE_META = {
   routeopt: { title: 'Route Optimization', subtitle: 'AI-generated routes across your active fleet.' },
   fleet: { title: 'Fleet Management', subtitle: 'Vehicles, drivers, health and maintenance.' },
   dispatch: { title: 'Live Dispatch Center', subtitle: 'Assign orders to drivers in real time.' },
+  configuration: { title: 'Zones & Rate Cards', subtitle: 'Configure service areas, B2B/B2C pricing and COD surcharge rules.' },
 };
 
 function AppShell({ onLogout }) {
@@ -1815,6 +1885,7 @@ function AppShell({ onLogout }) {
           {active === 'routeopt' && <RouteOptimizationModule />}
           {active === 'fleet' && <FleetModule />}
           {active === 'dispatch' && <DispatchModule />}
+          {active === 'configuration' && <ZonesAndRatesModule />}
         </main>
       </div>
     </div>
@@ -1835,6 +1906,7 @@ export default function App() {
         <LandingPage
           onLogin={() => { setAuthView('login'); setScreen('auth'); }}
           onSignup={() => { setAuthView('register'); setScreen('auth'); }}
+          onExplore={() => setScreen('app')}
         />
       )}
       {screen === 'auth' && (
