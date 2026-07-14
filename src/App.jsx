@@ -193,13 +193,26 @@ function GlobalStyle() {
       .ls-cursor-ring.expanded { border-color:rgba(255,255,255,.15); }
 
       .ls-input:focus, .ls-btn-focus:focus-visible { outline: 2px solid ${C.accent}; outline-offset: 2px; }
+      .ls-root a:focus-visible { outline:2px solid ${C.accent}; outline-offset:4px; border-radius:6px; }
       .ls-input::placeholder { color: ${C.faint}; opacity: 1; }
       @media (max-width: 860px) { .ls-hide-mobile { display: none !important; } }
       .ls-feature-card:hover { border-color: rgba(21,155,88,.35) !important; transform: translateY(-6px); box-shadow:0 18px 42px rgba(23,52,38,.09); }
       .ls-root button { font-family:${FONT_SANS}; }
-      @media (max-width: 780px) { .hero-content { grid-template-columns:1fr !important; text-align:center !important; padding-top:7rem !important; } .hero-copy { align-items:center !important; } .hero-art { width:min(88vw,480px) !important; margin:0 auto !important; } }
+      .ls-glass { background:rgba(255,255,255,.66); border:1px solid rgba(255,255,255,.78); box-shadow:0 18px 50px rgba(25,82,48,.10); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+      .ls-nav { background:rgba(255,255,255,.76); box-shadow:0 20px 56px rgba(24,80,48,.13), inset 0 1px 0 rgba(255,255,255,.96); }
+      .ls-nav-link { position:relative; padding:.5rem .15rem; transition:color .25s ease; }
+      .ls-nav-link::after { content:''; position:absolute; height:2px; left:.15rem; right:.15rem; bottom:.1rem; transform:scaleX(0); transform-origin:center; border-radius:9px; background:${C.accent}; transition:transform .25s cubic-bezier(.16,1,.3,1); }
+      .ls-nav-link:hover { color:${C.text} !important; }
+      .ls-nav-link:hover::after { transform:scaleX(1); }
+      .ls-nav-cta { box-shadow:0 10px 22px rgba(21,155,88,.23); }
+      .ls-nav-cta:hover { box-shadow:0 14px 30px rgba(21,155,88,.32); }
+      [data-reveal-section] { opacity:0; transform:translateY(28px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+      [data-reveal-section].is-visible { opacity:1; transform:translateY(0); }
+      @keyframes ls-route-draw { to { stroke-dashoffset:0; } }
+      .ls-route-line { stroke-dasharray:12 9; stroke-dashoffset:220; animation:ls-route-draw 2.4s linear infinite; }
+      @media (max-width: 780px) { .hero-content, .route-demo, .customer-grid { grid-template-columns:1fr !important; text-align:center !important; padding-top:7rem !important; } .hero-copy { align-items:center !important; } .hero-art { width:min(88vw,480px) !important; margin:0 auto !important; } .route-demo { padding-top:1rem !important; } .customer-grid { padding-top:0 !important; } }
       @media (prefers-reduced-motion: reduce) {
-        .ls-word-inner, .ls-letter-inner, .ls-fadeup { animation: none !important; opacity:1 !important; transform:none !important; filter:none !important; }
+        .ls-word-inner, .ls-letter-inner, .ls-fadeup, [data-reveal-section] { animation: none !important; opacity:1 !important; transform:none !important; filter:none !important; transition:none !important; }
       }
     `}</style>
   );
@@ -453,17 +466,24 @@ function RouteCanvas() {
 /* ============================================================ */
 function Nav({ onLogin, onSignup }) {
   const [open, setOpen] = useState(false);
-  const links = ['Product', 'Routing AI', 'Pricing', 'FAQ'];
-  const destinations = { Product: 'routing-ai', 'Routing AI': 'routing-ai', Pricing: 'pricing', FAQ: 'faq' };
+  const links = ['Product', 'Routing AI', 'Track delivery', 'Pricing', 'FAQ'];
+  const destinations = { Product: 'product', 'Routing AI': 'routing-ai-demo', 'Track delivery': 'customer-tracking', Pricing: 'pricing', FAQ: 'faq' };
+  const scrollToSection = (id) => {
+    const target = document.getElementById(id);
+    if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 98, behavior: 'smooth' });
+  };
   return (
-    <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.3rem 2.5rem', background: 'rgba(247,251,247,.82)', backdropFilter: 'blur(14px)', borderBottom: `1px solid ${C.border}` }}>
-      <div style={{ fontFamily: FONT_GEN, fontSize: '1.3rem', fontWeight: 600, letterSpacing: '-.02em' }}>Fleetly</div>
-      <div className="ls-hide-mobile" style={{ display: 'flex', gap: '2.2rem' }}>
-        {links.map(l => <a key={l} data-cursor-hover href={`#${destinations[l]}`} onClick={(e) => { e.preventDefault(); document.getElementById(destinations[l])?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} style={{ fontSize: '.9rem', color: C.mute, textDecoration: 'none' }}>{l}</a>)}
+    <nav className="ls-glass ls-nav" style={{ position: 'fixed', top: '1rem', left: '50%', transform: 'translateX(-50%)', width: 'min(1260px, calc(100% - 2rem))', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '.7rem .85rem .7rem 1rem', borderRadius: 22 }}>
+      <a href="#top" aria-label="Fleetly home" style={{ display: 'flex', alignItems: 'center', gap: '.65rem', textDecoration: 'none', color: C.text }}>
+        <span style={{ width: 34, height: 34, borderRadius: 11, display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, #1bb867, #118a4c)', color: '#fff', boxShadow: '0 8px 16px rgba(21,155,88,.25)' }}><Route size={18} strokeWidth={2.5} /></span>
+        <span style={{ fontFamily: FONT_GEN, fontSize: '1.22rem', fontWeight: 700, letterSpacing: '-.055em' }}>Fleetly</span>
+      </a>
+      <div className="ls-hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '2rem', marginLeft: '3rem' }}>
+        {links.map(l => <a className="ls-nav-link" key={l} data-cursor-hover href={`#${destinations[l]}`} onClick={(e) => { e.preventDefault(); scrollToSection(destinations[l]); e.currentTarget.blur(); }} style={{ fontSize: '.88rem', fontWeight: 500, color: C.mute, textDecoration: 'none' }}>{l}</a>)}
       </div>
-      <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center' }}>
-        <a data-cursor-hover onClick={onLogin} style={{ fontSize: '.9rem', cursor: 'pointer', color: C.text }}>Log in</a>
-        <Btn size="sm" onClick={onSignup} icon={ArrowUpRight}>Book a demo</Btn>
+      <div style={{ display: 'flex', gap: '.9rem', alignItems: 'center', paddingLeft: '1.2rem', borderLeft: `1px solid ${C.border}` }}>
+        <a data-cursor-hover onClick={onLogin} style={{ fontSize: '.88rem', fontWeight: 600, cursor: 'pointer', color: C.text }}>Log in</a>
+        <Btn size="sm" style={{ padding: '.7rem 1.15rem', fontWeight: 650 }} onClick={onSignup} icon={ArrowUpRight}>Book a demo</Btn>
       </div>
     </nav>
   );
@@ -486,10 +506,6 @@ function Hero({ onSignup }) {
     <header style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderBottom: `1px solid ${C.border}`, background: 'radial-gradient(circle at 85% 20%, #ddf8e7 0, transparent 28%), linear-gradient(135deg, #f9fdf9, #edf8ef)' }}>
       <div className="hero-content" style={{ position: 'relative', zIndex: 2, flex: 1, maxWidth: 1220, width: '100%', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.02fr .98fr', alignItems: 'center', gap: '2rem', padding: '8rem 1.5rem 4rem' }}>
         <div className="hero-copy" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <div className="ls-fadeup" style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem', border: `1px solid ${C.accentBorder}`, background: C.accentSoft, borderRadius: 999, padding: '.4rem .9rem', marginBottom: '2rem' }}>
-          <Sparkles size={13} color={C.accent} />
-          <span style={{ fontSize: '.78rem', color: C.accent, fontFamily: FONT_SANS }}>AI route optimization now live</span>
-        </div>
         <h1 style={{ fontFamily: FONT_SERIF, fontSize: 'clamp(2.6rem, 5.2vw, 4.9rem)', fontWeight: 500, lineHeight: 1.02, letterSpacing: '-.035em', maxWidth: 640 }}>
           <RevealWords text="Every delivery," /> <br />
           <RevealWords text="perfectly in motion." stagger={0.09} style={{}} />
@@ -499,14 +515,14 @@ function Hero({ onSignup }) {
         </p>
         <div className="ls-fadeup" style={{ display: 'flex', gap: '1rem', marginTop: '2.4rem', animationDelay: '.65s', flexWrap: 'wrap', justifyContent: 'center' }}>
           <Btn size="lg" onClick={onSignup} icon={Play}>Book a demo</Btn>
-          <Btn size="lg" variant="ghost" onClick={onSignup}>Explore the platform</Btn>
+          <Btn size="lg" variant="ghost" onClick={() => document.getElementById('customer-tracking')?.scrollIntoView({ behavior: 'smooth' })}>Track a delivery</Btn>
         </div>
         <div className="ls-fadeup" style={{ display: 'flex', gap: '.9rem', marginTop: '1.6rem', animationDelay: '.8s', alignItems: 'center', color: C.faint, fontSize: '.85rem' }}>
           <span className="ls-dot" /> No credit card required &nbsp;·&nbsp; Live in under a week
         </div>
         </div>
-        <div className="hero-art ls-fadeup" style={{ animationDelay: '.24s', position: 'relative' }}>
-          <img src="/delivery-hero.svg" alt="Delivery app interface displayed on two mobile phones" style={{ width: '100%', display: 'block', filter: 'drop-shadow(0 28px 36px rgba(23, 75, 43, .16))' }} />
+        <div className="hero-art ls-fadeup ls-glass" style={{ animationDelay: '.24s', position: 'relative', borderRadius: 30, padding: '.8rem' }}>
+          <img src="/delivery-hero.svg" alt="Delivery app interface displayed on two mobile phones" style={{ width: '100%', display: 'block', borderRadius: 23, filter: 'drop-shadow(0 28px 36px rgba(23, 75, 43, .16))' }} />
         </div>
       </div>
       <LiveStatsStrip />
@@ -551,13 +567,63 @@ function LogosStrip() {
   );
 }
 
+function RouteAiDemo() {
+  const [pickup, setPickup] = useState('Austin, TX');
+  const [dropoff, setDropoff] = useState('North Loop, Austin');
+  const [optimizing, setOptimizing] = useState(false);
+  const [route, setRoute] = useState(null);
+  const optimize = () => {
+    setOptimizing(true);
+    setRoute(null);
+    window.setTimeout(() => { setOptimizing(false); setRoute({ minutes: 24, distance: '8.4 mi', saved: '14 min', stops: 3 }); }, 1100);
+  };
+  return (
+    <div id="routing-ai-demo" className="ls-glass route-demo" style={{ maxWidth: 980, margin: '3rem auto 0', borderRadius: 22, padding: '1.1rem', display: 'grid', gridTemplateColumns: 'minmax(250px,.85fr) 1.15fr', gap: '1rem', scrollMarginTop: 98 }}>
+      <div style={{ padding: '1.15rem', display: 'flex', flexDirection: 'column', gap: '.9rem' }}>
+        <div><p style={{ color: C.accent, fontSize: '.76rem', fontWeight: 700, letterSpacing: '.08em' }}>INTERACTIVE DEMO</p><h3 style={{ marginTop: '.35rem', fontFamily: FONT_GEN, fontSize: '1.2rem' }}>Plan a smarter route</h3></div>
+        <Field label="Pickup"><TextInput value={pickup} onChange={e => setPickup(e.target.value)} /></Field>
+        <Field label="Drop-off"><TextInput value={dropoff} onChange={e => setDropoff(e.target.value)} /></Field>
+        <Btn full icon={optimizing ? RefreshCw : Sparkles} onClick={optimize} disabled={optimizing}>{optimizing ? 'Optimizing your route…' : 'Optimize route'}</Btn>
+        {route && <div className="ls-fadeup" style={{ background: C.accentSoft, border: `1px solid ${C.accentBorder}`, borderRadius: 12, padding: '.8rem' }}><strong style={{ color: C.accent }}>Route ready</strong><p style={{ marginTop: '.25rem', color: C.mute, fontSize: '.82rem' }}>AI found a faster, lower-emission sequence.</p></div>}
+      </div>
+      <div style={{ minHeight: 330, position: 'relative', overflow: 'hidden', borderRadius: 16, background: 'linear-gradient(145deg, #e9f7ed, #d9f1e1)' }}>
+        <svg viewBox="0 0 520 330" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }} aria-label="Optimized delivery route preview">
+          <path d="M0 65 C96 115 116 26 206 76 S337 130 432 70 S478 125 530 104 M-15 230 C75 185 130 270 214 228 S364 193 540 255" fill="none" stroke="rgba(22,72,45,.12)" strokeWidth="24" strokeLinecap="round" />
+          <path className="ls-route-line" d="M70 251 C135 230 160 95 251 134 S354 222 446 86" fill="none" stroke={C.accent} strokeWidth="6" strokeLinecap="round" />
+          {[['70','251','A'],['251','134','1'],['340','188','2'],['446','86','B']].map(([cx,cy,label], i) => <g key={label}><circle cx={cx} cy={cy} r="15" fill={i === 0 || i === 3 ? C.text : '#ffffff'} stroke={C.accent} strokeWidth="3"/><text x={cx} y={Number(cy)+5} textAnchor="middle" fill={i === 0 || i === 3 ? '#ffffff' : C.text} fontFamily="Arial" fontSize="12" fontWeight="700">{label}</text></g>)}
+        </svg>
+        <div className="ls-glass" style={{ position: 'absolute', top: 16, right: 16, borderRadius: 13, padding: '.75rem .9rem', minWidth: 145 }}><p style={{ color: C.faint, fontSize: '.7rem' }}>PREDICTED ARRIVAL</p><p style={{ fontFamily: FONT_GEN, fontSize: '1.25rem', marginTop: '.15rem' }}>{route ? `${route.minutes} min` : '38 min'}</p></div>
+        <div className="ls-glass" style={{ position: 'absolute', bottom: 16, left: 16, borderRadius: 13, padding: '.7rem .9rem', display: 'flex', gap: '1.1rem' }}>{[['Distance', route?.distance || '10.1 mi'], ['Time saved', route?.saved || '—'], ['Stops', route?.stops || '3']].map(([label,value]) => <div key={label}><p style={{ color: C.faint, fontSize: '.68rem' }}>{label}</p><p style={{ fontWeight: 700, marginTop: '.15rem', fontSize: '.86rem' }}>{value}</p></div>)}</div>
+      </div>
+    </div>
+  );
+}
+
+function CustomerTrackingSection() {
+  const [code, setCode] = useState('LS-10231');
+  const [tracked, setTracked] = useState(true);
+  const shipment = SHIPMENTS[1];
+  return (
+    <section id="customer-tracking" data-reveal-section style={{ padding: '7rem 1.5rem', borderBottom: `1px solid ${C.border}`, scrollMarginTop: 90 }}>
+      <div className="customer-grid" style={{ maxWidth: 1050, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(250px,.8fr) 1.2fr', gap: '2rem', alignItems: 'center' }}>
+        <div><SectionEyebrow>Customer experience</SectionEyebrow><h2 style={{ fontFamily: FONT_SERIF, fontSize: 'clamp(2rem,3.6vw,3rem)', lineHeight: 1.1, marginTop: '.7rem' }}>Tracking that feels reassuring.</h2><p style={{ color: C.mute, lineHeight: 1.65, marginTop: '1rem' }}>Give customers a simple link to live location, an accurate arrival window, and clear delivery updates—without making them download an app.</p><div style={{ display: 'flex', gap: '.6rem', marginTop: '1.4rem' }}><TextInput aria-label="Tracking number" value={code} onChange={e => setCode(e.target.value)} /><Btn onClick={() => setTracked(true)}>Track</Btn></div></div>
+        <div className="ls-glass" style={{ borderRadius: 22, padding: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '.35rem .35rem .8rem' }}><div><p style={{ fontSize: '.74rem', color: C.faint }}>DELIVERY STATUS</p><p style={{ fontFamily: FONT_GEN, fontSize: '1rem', marginTop: '.18rem' }}>{code || shipment.id}</p></div><Badge tone="info">On the way</Badge></div>
+          {tracked && <><MiniMap seed={29} /><div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', padding: '.9rem .35rem .2rem' }}><div><p style={{ color: C.faint, fontSize: '.75rem' }}>ARRIVING</p><p style={{ fontWeight: 700, marginTop: '.2rem' }}>Today, 2:10–2:30 PM</p></div><div style={{ textAlign: 'right' }}><p style={{ color: C.faint, fontSize: '.75rem' }}>DRIVER</p><p style={{ fontWeight: 700, marginTop: '.2rem' }}>M. Chen · 4.9 ★</p></div></div></>}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FeaturesSection() {
   return (
-    <section id="routing-ai" style={{ padding: '7rem 1.5rem', borderBottom: `1px solid ${C.border}`, scrollMarginTop: 84 }}>
+    <section id="product" data-reveal-section style={{ padding: '7rem 1.5rem', borderBottom: `1px solid ${C.border}`, scrollMarginTop: 98 }}>
       <div style={{ maxWidth: 620, margin: '0 auto', textAlign: 'center' }}>
         <SectionEyebrow>Platform</SectionEyebrow>
         <h2 style={{ fontFamily: FONT_SERIF, fontSize: 'clamp(1.9rem,3.4vw,2.8rem)', fontWeight: 400, lineHeight: 1.2 }}>Every part of the delivery chain, one screen.</h2>
       </div>
+      <RouteAiDemo />
       <div style={{ maxWidth: 1180, margin: '3.5rem auto 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: '1.2rem' }}>
         {FEATURES.map((f, i) => (
           <Card key={i} style={{ transition: 'border-color .3s, transform .3s' }} className="ls-feature-card">
@@ -596,7 +662,7 @@ function TestimonialsSection() {
   );
 }
 
-function PricingSection() {
+function PricingSection({ onSignup }) {
   return (
     <section id="pricing" style={{ padding: '7rem 1.5rem', borderBottom: `1px solid ${C.border}` }}>
       <div style={{ maxWidth: 620, margin: '0 auto', textAlign: 'center' }}>
@@ -617,7 +683,7 @@ function PricingSection() {
                 </div>
               ))}
             </div>
-            <Btn variant={p.highlight ? 'solid' : 'ghost'} full>{p.cta}</Btn>
+            <Btn variant={p.highlight ? 'solid' : 'ghost'} full onClick={() => p.tier === 'Growth' ? document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) : onSignup()}>{p.cta}</Btn>
           </div>
         ))}
       </div>
@@ -712,17 +778,24 @@ function LandingFooter() {
 }
 
 function LandingPage({ onLogin, onSignup }) {
+  useEffect(() => {
+    const sections = document.querySelectorAll('[data-reveal-section]');
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } }), { threshold: 0.13 });
+    sections.forEach(section => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
   return (
     <div>
       <Nav onLogin={onLogin} onSignup={onSignup} />
       <Hero onSignup={onSignup} />
-      <LogosStrip />
+      <div data-reveal-section><LogosStrip /></div>
       <FeaturesSection />
-      <TestimonialsSection />
-      <PricingSection />
-      <FaqSection />
-      <ContactSection onSignup={onSignup} />
-      <LandingFooter />
+      <CustomerTrackingSection />
+      <div data-reveal-section><TestimonialsSection /></div>
+      <div data-reveal-section><PricingSection onSignup={onSignup} /></div>
+      <div data-reveal-section><FaqSection /></div>
+      <div data-reveal-section><ContactSection onSignup={onSignup} /></div>
+      <div data-reveal-section><LandingFooter /></div>
     </div>
   );
 }
