@@ -206,11 +206,18 @@ function GlobalStyle() {
       .ls-nav-link:hover::after { transform:scaleX(1); }
       .ls-nav-cta { box-shadow:0 10px 22px rgba(21,155,88,.23); }
       .ls-nav-cta:hover { box-shadow:0 14px 30px rgba(21,155,88,.32); }
+      .ls-stat-card { position:relative; overflow:hidden; transition:transform .3s cubic-bezier(.16,1,.3,1), background .3s ease; }
+      .ls-stat-card::before { content:''; position:absolute; width:150px; height:150px; border-radius:50%; right:-70px; top:-100px; background:radial-gradient(circle, rgba(21,155,88,.16), transparent 70%); opacity:0; transition:opacity .3s ease; }
+      .ls-stat-card:hover { transform:translateY(-5px); background:rgba(255,255,255,.92) !important; }
+      .ls-stat-card:hover::before { opacity:1; }
+      .ls-stat-value { letter-spacing:-.055em; }
+      .ls-logo-chip { display:flex; align-items:center; justify-content:center; min-height:62px; padding:.8rem 1.1rem; border:1px solid ${C.border}; border-radius:14px; background:rgba(255,255,255,.58); color:${C.mute}; font-family:${FONT_GEN}; font-size:.9rem; font-weight:650; letter-spacing:.04em; transition:transform .25s ease, color .25s ease, box-shadow .25s ease; animation:ls-fadeup .65s cubic-bezier(.16,1,.3,1) both; }
+      .ls-logo-chip:hover { transform:translateY(-4px); color:${C.accent}; box-shadow:0 14px 28px rgba(23,52,38,.08); }
       [data-reveal-section] { opacity:0; transform:translateY(28px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
       [data-reveal-section].is-visible { opacity:1; transform:translateY(0); }
       @keyframes ls-route-draw { to { stroke-dashoffset:0; } }
       .ls-route-line { stroke-dasharray:12 9; stroke-dashoffset:220; animation:ls-route-draw 2.4s linear infinite; }
-      @media (max-width: 780px) { .hero-content, .route-demo, .customer-grid { grid-template-columns:1fr !important; text-align:center !important; padding-top:7rem !important; } .hero-copy { align-items:center !important; } .hero-art { width:min(88vw,480px) !important; margin:0 auto !important; } .route-demo { padding-top:1rem !important; } .customer-grid { padding-top:0 !important; } }
+      @media (max-width: 780px) { .hero-content, .route-demo, .customer-grid, .premium-footer-main { grid-template-columns:1fr !important; text-align:center !important; padding-top:7rem !important; } .hero-copy { align-items:center !important; } .hero-art { width:min(88vw,480px) !important; margin:0 auto !important; } .route-demo { padding-top:1rem !important; } .customer-grid { padding-top:0 !important; } .premium-footer-main { padding-top:0 !important; } }
       @media (prefers-reduced-motion: reduce) {
         .ls-word-inner, .ls-letter-inner, .ls-fadeup, [data-reveal-section] { animation: none !important; opacity:1 !important; transform:none !important; filter:none !important; transition:none !important; }
       }
@@ -542,26 +549,28 @@ function LiveStatsStrip() {
     { label: 'Tons CO\u2082 saved this month', value: co2, icon: Leaf },
   ];
   return (
-    <div style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', borderTop: `1px solid ${C.border}`, background: 'rgba(255,255,255,.60)', backdropFilter: 'blur(10px)' }}>
+    <section style={{ position: 'relative', zIndex: 2, background: 'linear-gradient(90deg, rgba(255,255,255,.70), rgba(232,248,237,.78), rgba(255,255,255,.70))', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <div style={{ maxWidth: 1260, margin: '0 auto', padding: '.65rem 1.5rem 0', display: 'flex', alignItems: 'center', gap: '.45rem', color: C.accent, fontSize: '.68rem', fontWeight: 700, letterSpacing: '.11em' }}><span className="ls-dot" style={{ transform: 'scale(.6)' }} /> LIVE DELIVERY NETWORK</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', maxWidth: 1260, margin: '0 auto', padding: '.55rem 1.5rem 1rem' }}>
       {stats.map((s, i) => (
-        <div key={i} style={{ padding: '1.6rem 1.8rem', borderLeft: i ? `1px solid ${C.border}` : 'none', display: 'flex', flexDirection: 'column', gap: '.35rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', color: C.faint }}><s.icon size={14} /><span style={{ fontSize: '.75rem', letterSpacing: '.03em' }}>{s.label}</span></div>
-          <div style={{ fontFamily: FONT_GEN, fontSize: '1.7rem', fontWeight: 500 }}>{s.value}</div>
+        <div key={i} className="ls-stat-card" style={{ padding: '1.15rem 1.35rem', borderLeft: i ? `1px solid ${C.border}` : 'none', display: 'flex', flexDirection: 'column', gap: '.5rem', animation: 'ls-fadeup .65s cubic-bezier(.16,1,.3,1) both', animationDelay: `${i * .1}s`, borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.55rem', color: C.mute }}><span style={{ width: 28, height: 28, borderRadius: 9, background: C.accentSoft, display: 'grid', placeItems: 'center' }}><s.icon size={14} color={C.accent} /></span><span style={{ fontSize: '.76rem', fontWeight: 600, letterSpacing: '.01em' }}>{s.label}</span></div>
+          <div className="ls-stat-value" style={{ fontFamily: FONT_GEN, fontSize: '2rem', fontWeight: 650, color: C.text }}>{s.value}</div>
         </div>
       ))}
-    </div>
+      </div>
+    </section>
   );
 }
 
 function LogosStrip() {
-  const items = [...LOGOS, ...LOGOS];
   return (
-    <section style={{ padding: '3.4rem 0', borderBottom: `1px solid ${C.border}`, overflow: 'hidden' }}>
-      <p style={{ textAlign: 'center', color: C.faint, fontSize: '.8rem', letterSpacing: '.1em', marginBottom: '1.8rem' }}>TRUSTED BY OPERATIONS TEAMS AT</p>
-      <div className="ls-marquee-track">
-        {items.map((l, i) => (
-          <div key={i} style={{ padding: '0 3rem', fontFamily: FONT_GEN, fontSize: '1.15rem', color: C.faint, whiteSpace: 'nowrap', letterSpacing: '.04em' }}>{l}</div>
-        ))}
+    <section style={{ padding: '3.2rem 1.5rem', borderBottom: `1px solid ${C.border}`, background: 'rgba(255,255,255,.28)' }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.65rem', marginBottom: '1.4rem' }}><span style={{ height: 1, width: 36, background: C.borderStrong }} /><p style={{ textAlign: 'center', color: C.mute, fontSize: '.76rem', fontWeight: 700, letterSpacing: '.13em' }}>TRUSTED BY MODERN OPERATIONS TEAMS</p><span style={{ height: 1, width: 36, background: C.borderStrong }} /></div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: '.75rem' }}>
+          {LOGOS.map((l, i) => <div key={l} className="ls-logo-chip" style={{ animationDelay: `${i * .08}s` }}>{l}</div>)}
+        </div>
       </div>
     </section>
   );
@@ -777,6 +786,22 @@ function LandingFooter() {
   );
 }
 
+function PremiumFooter({ onSignup }) {
+  const footerLinks = { Product: ['Routing AI', 'Live dispatch', 'Customer tracking'], Company: ['About us', 'Careers', 'Contact'], Resources: ['Help center', 'Privacy', 'Terms'] };
+  return (
+    <footer style={{ padding: '1.5rem', background: '#173426', color: '#f6fff8' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '3.4rem 2.7rem 0', borderRadius: 26, background: 'radial-gradient(circle at 92% 5%, rgba(58,201,116,.25), transparent 31%), linear-gradient(135deg, #1d422e, #122c20)', overflow: 'hidden' }}>
+        <div className="premium-footer-main" style={{ display: 'grid', gridTemplateColumns: '1.35fr 1fr', gap: '3rem', paddingBottom: '3rem', borderBottom: '1px solid rgba(255,255,255,.16)' }}>
+          <div><div style={{ display: 'flex', alignItems: 'center', gap: '.6rem', fontFamily: FONT_GEN, fontSize: '1.2rem', fontWeight: 700 }}><span style={{ width: 30, height: 30, borderRadius: 9, display: 'grid', placeItems: 'center', background: C.accent }}><Route size={16} color="#fff" /></span>Fleetly</div><h2 style={{ fontFamily: FONT_SERIF, fontSize: 'clamp(2rem,3.6vw,3.1rem)', fontWeight: 500, lineHeight: 1.05, letterSpacing: '-.035em', marginTop: '1.6rem', maxWidth: 520 }}>Every great delivery starts with a clearer route.</h2><p style={{ marginTop: '1rem', color: 'rgba(246,255,248,.68)', maxWidth: 450, lineHeight: 1.6 }}>Bring your dispatch, drivers and customers into one calm, connected operation.</p><Btn size="md" style={{ marginTop: '1.5rem', background: '#f6fff8', color: C.text }} icon={ArrowUpRight} onClick={onSignup}>Talk to our team</Btn></div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.1rem', alignContent: 'start', paddingTop: '.5rem' }}>{Object.entries(footerLinks).map(([group, links]) => <div key={group}><p style={{ color: '#9ce7b4', fontSize: '.72rem', fontWeight: 700, letterSpacing: '.1em', marginBottom: '1rem' }}>{group.toUpperCase()}</p>{links.map(link => <a data-cursor-hover key={link} href="#" style={{ display: 'block', marginBottom: '.7rem', color: 'rgba(246,255,248,.74)', fontSize: '.82rem', textDecoration: 'none' }}>{link}</a>)}</div>)}</div>
+        </div>
+        <div style={{ padding: '1.1rem 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', color: 'rgba(246,255,248,.52)', fontSize: '.78rem' }}><div style={{ display: 'flex', gap: '.75rem' }}><a data-cursor-hover href="#" aria-label="LinkedIn" style={{ color: '#fff', textDecoration: 'none', width: 27, height: 27, borderRadius: 8, background: 'rgba(255,255,255,.12)', display: 'grid', placeItems: 'center', fontWeight: 700 }}>in</a><a data-cursor-hover href="#" aria-label="X" style={{ color: '#fff', textDecoration: 'none', width: 27, height: 27, borderRadius: 8, background: 'rgba(255,255,255,.12)', display: 'grid', placeItems: 'center', fontWeight: 700 }}>X</a><a data-cursor-hover href="#" aria-label="Instagram" style={{ color: '#fff', textDecoration: 'none', width: 27, height: 27, borderRadius: 8, background: 'rgba(255,255,255,.12)', display: 'grid', placeItems: 'center', fontWeight: 700 }}>◎</a></div><span>© 2026 Fleetly. Built for the last mile.</span></div>
+        <div style={{ fontFamily: FONT_GEN, fontWeight: 700, fontSize: 'clamp(4rem, 14vw, 10rem)', letterSpacing: '-.09em', lineHeight: .72, color: 'rgba(255,255,255,.075)', whiteSpace: 'nowrap', transform: 'translateX(-.06em)' }}>Fleetly</div>
+      </div>
+    </footer>
+  );
+}
+
 function LandingPage({ onLogin, onSignup }) {
   useEffect(() => {
     const sections = document.querySelectorAll('[data-reveal-section]');
@@ -795,7 +820,7 @@ function LandingPage({ onLogin, onSignup }) {
       <div data-reveal-section><PricingSection onSignup={onSignup} /></div>
       <div data-reveal-section><FaqSection /></div>
       <div data-reveal-section><ContactSection onSignup={onSignup} /></div>
-      <div data-reveal-section><LandingFooter /></div>
+      <div data-reveal-section><PremiumFooter onSignup={onSignup} /></div>
     </div>
   );
 }
@@ -805,11 +830,12 @@ function LandingPage({ onLogin, onSignup }) {
 /* ============================================================ */
 const ROLES = ['Admin', 'Operations Manager', 'Dispatcher', 'Delivery Partner', 'Customer', 'Warehouse Staff', 'Customer Support', 'Analytics Team'];
 
-function AuthShell({ children, footer }) {
+function AuthShell({ children, footer, onBack }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, opacity: 0.35 }}><RouteCanvas /></div>
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(57,255,20,.06), transparent)' }} />
+      {onBack && <button type="button" onClick={onBack} className="ls-btn-focus" style={{ position: 'absolute', top: '1.6rem', left: '1.6rem', zIndex: 3, display: 'inline-flex', alignItems: 'center', gap: '.45rem', border: `1px solid ${C.borderStrong}`, background: 'rgba(255,255,255,.76)', color: C.text, borderRadius: 999, padding: '.62rem .9rem', fontSize: '.82rem', fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(12px)' }}><ChevronLeft size={16} /> Back to home</button>}
       <div className="ls-fadeup" style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ fontFamily: FONT_GEN, fontSize: '1.5rem', fontWeight: 600 }}>Fleetly</div>
@@ -840,11 +866,11 @@ function Divider({ children }) {
   );
 }
 
-function LoginView({ go }) {
+function LoginView({ go, onBack }) {
   const [showPw, setShowPw] = useState(false);
   const [mfa, setMfa] = useState(false);
   return (
-    <AuthShell footer={<>New to Fleetly? <a data-cursor-hover onClick={() => go('register')} style={{ color: C.accent, cursor: 'pointer' }}>Create an account</a></>}>
+    <AuthShell onBack={onBack} footer={<>New to Fleetly? <a data-cursor-hover onClick={() => go('register')} style={{ color: C.accent, cursor: 'pointer' }}>Create an account</a></>}>
       <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.6rem', fontWeight: 400, marginBottom: '.3rem' }}>Welcome back</h2>
       <p style={{ color: C.mute, fontSize: '.88rem', marginBottom: '1.6rem' }}>Log in to your operations console.</p>
       <SocialButtons />
@@ -875,9 +901,9 @@ function LoginView({ go }) {
   );
 }
 
-function RegisterView({ go }) {
+function RegisterView({ go, onBack }) {
   return (
-    <AuthShell footer={<>Already have an account? <a data-cursor-hover onClick={() => go('login')} style={{ color: C.accent, cursor: 'pointer' }}>Log in</a></>}>
+    <AuthShell onBack={onBack} footer={<>Already have an account? <a data-cursor-hover onClick={() => go('login')} style={{ color: C.accent, cursor: 'pointer' }}>Log in</a></>}>
       <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.6rem', fontWeight: 400, marginBottom: '.3rem' }}>Create your account</h2>
       <p style={{ color: C.mute, fontSize: '.88rem', marginBottom: '1.6rem' }}>Set up your organization on Fleetly.</p>
       <SocialButtons />
@@ -897,10 +923,10 @@ function RegisterView({ go }) {
   );
 }
 
-function ForgotView({ go }) {
+function ForgotView({ go, onBack }) {
   const [sent, setSent] = useState(false);
   return (
-    <AuthShell footer={<>Remembered it? <a data-cursor-hover onClick={() => go('login')} style={{ color: C.accent, cursor: 'pointer' }}>Back to log in</a></>}>
+    <AuthShell onBack={onBack} footer={<>Remembered it? <a data-cursor-hover onClick={() => go('login')} style={{ color: C.accent, cursor: 'pointer' }}>Back to log in</a></>}>
       <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.6rem', fontWeight: 400, marginBottom: '.3rem' }}>Reset your password</h2>
       <p style={{ color: C.mute, fontSize: '.88rem', marginBottom: '1.6rem' }}>We'll email you a link to get back in.</p>
       {sent ? (
@@ -918,7 +944,7 @@ function ForgotView({ go }) {
   );
 }
 
-function OtpView({ go }) {
+function OtpView({ go, onBack }) {
   const [digits, setDigits] = useState(Array(6).fill(''));
   const refs = useRef([]);
   const setDigit = (i, v) => {
@@ -927,7 +953,7 @@ function OtpView({ go }) {
     if (v && i < 5) refs.current[i + 1]?.focus();
   };
   return (
-    <AuthShell footer={<>Didn't get a code? <a data-cursor-hover style={{ color: C.accent, cursor: 'pointer' }}>Resend</a></>}>
+    <AuthShell onBack={onBack} footer={<>Didn't get a code? <a data-cursor-hover style={{ color: C.accent, cursor: 'pointer' }}>Resend</a></>}>
       <div style={{ textAlign: 'center' }}>
         <Shield size={26} color={C.accent} style={{ marginBottom: '1rem' }} />
         <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.5rem', fontWeight: 400, marginBottom: '.3rem' }}>Verify it's you</h2>
@@ -944,12 +970,12 @@ function OtpView({ go }) {
   );
 }
 
-function AuthFlow({ view, setView, onDone }) {
+function AuthFlow({ view, setView, onDone, onBack }) {
   const go = (v) => v === 'app' ? onDone() : setView(v);
-  if (view === 'register') return <RegisterView go={go} />;
-  if (view === 'forgot') return <ForgotView go={go} />;
-  if (view === 'otp' || view === 'verify') return <OtpView go={go} />;
-  return <LoginView go={go} />;
+  if (view === 'register') return <RegisterView go={go} onBack={onBack} />;
+  if (view === 'forgot') return <ForgotView go={go} onBack={onBack} />;
+  if (view === 'otp' || view === 'verify') return <OtpView go={go} onBack={onBack} />;
+  return <LoginView go={go} onBack={onBack} />;
 }
 
 /* ============================================================ */
@@ -1374,26 +1400,32 @@ const SHIPMENTS = ORDERS.filter(o => o.status !== 'Pending').slice(0, 9).map((o,
 }));
 
 function MiniMap({ seed = 1 }) {
-  const pathId = `p${seed}`;
-  const r = seedRand(seed * 91);
-  const pts = Array.from({ length: 4 }).map(() => [40 + r() * 320, 40 + r() * 200]);
-  const d = `M${pts[0][0]},${pts[0][1]} Q${pts[1][0]},${pts[1][1]} ${pts[2][0]},${pts[2][1]} T${pts[3][0]},${pts[3][1]}`;
+  const pathId = `route-${seed}`;
+  const offset = (seed % 6) * 5;
+  const d = `M62,202 C116,196 128,105 205,124 S304,198 420,78`;
   return (
-    <svg viewBox="0 0 400 260" style={{ width: '100%', height: 260, background: '#0a0a0a', borderRadius: 12 }}>
+    <svg viewBox="0 0 480 280" style={{ width: '100%', height: 280, background: '#eef8f1', borderRadius: 16, border: `1px solid ${C.border}` }} aria-label="Live delivery route map">
       <defs>
-        <pattern id={`grid${seed}`} width="26" height="26" patternUnits="userSpaceOnUse">
-          <path d="M26 0 L0 0 0 26" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+        <pattern id={`grid${seed}`} width="28" height="28" patternUnits="userSpaceOnUse">
+          <path d="M28 0H0V28" fill="none" stroke="rgba(23,52,38,.06)" strokeWidth="1" />
         </pattern>
+        <filter id={`shadow-${seed}`} x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#0a6336" floodOpacity=".24" /></filter>
+        <linearGradient id={`route-gradient-${seed}`} x1="0" y1="0" x2="1" y2="0"><stop stopColor="#15a15a"/><stop offset="1" stopColor="#72cb8e"/></linearGradient>
       </defs>
-      <rect width="400" height="260" fill={`url(#grid${seed})`} />
-      <path d={d} fill="none" stroke={C.accent} strokeWidth="2" strokeDasharray="6 5" opacity="0.8">
-        <animate attributeName="stroke-dashoffset" from="200" to="0" dur="8s" repeatCount="indefinite" />
+      <rect width="480" height="280" rx="16" fill={`url(#grid${seed})`} />
+      <path d="M-30 60C80 95 128 15 225 56S355 118 520 38M-26 245C92 215 133 252 228 208S370 173 520 225M100-20C142 64 82 113 116 185S204 265 190 306M340-15C292 58 350 102 327 178S270 242 306 305" fill="none" stroke="rgba(88,138,103,.22)" strokeWidth="18" strokeLinecap="round" />
+      <path d="M-30 60C80 95 128 15 225 56S355 118 520 38M-26 245C92 215 133 252 228 208S370 173 520 225M100-20C142 64 82 113 116 185S204 265 190 306M340-15C292 58 350 102 327 178S270 242 306 305" fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="10" strokeLinecap="round" />
+      <path d={d} fill="none" stroke="rgba(21,155,88,.18)" strokeWidth="12" strokeLinecap="round" />
+      <path d={d} fill="none" stroke={`url(#route-gradient-${seed})`} strokeWidth="4" strokeLinecap="round" strokeDasharray="9 7">
+        <animate attributeName="stroke-dashoffset" from="160" to="0" dur="5s" repeatCount="indefinite" />
       </path>
-      <circle cx={pts[0][0]} cy={pts[0][1]} r="5" fill="#fff" />
-      <circle cx={pts[3][0]} cy={pts[3][1]} r="5" fill="none" stroke={C.accent} strokeWidth="2" />
-      <circle cx={pts[2][0]} cy={pts[2][1]} r="6" fill={C.accent}>
-        <animate attributeName="r" values="5;8;5" dur="2s" repeatCount="indefinite" />
-      </circle>
+      <g filter={`url(#shadow-${seed})`}><circle cx="62" cy="202" r="14" fill="#ffffff"/><circle cx="62" cy="202" r="7" fill="#173426"/><text x="62" y="176" textAnchor="middle" fill="#486554" fontSize="11" fontFamily="Arial" fontWeight="700">PICKUP</text></g>
+      <g filter={`url(#shadow-${seed})`}><circle cx="420" cy="78" r="15" fill="#15a15a"/><path d="M414 78l4 4 8-9" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><text x="420" y="48" textAnchor="middle" fill="#486554" fontSize="11" fontFamily="Arial" fontWeight="700">DESTINATION</text></g>
+      <g filter={`url(#shadow-${seed})`}>
+        <circle cx={250 + offset} cy={147 - offset} r="18" fill="#173426"/>
+        <path d={`M${243 + offset} ${148 - offset}h14l-3-7h-8l-3 7Z`} fill="#ffffff"/><circle cx={247 + offset} cy={151 - offset} r="2" fill="#15a15a"/><circle cx={254 + offset} cy={151 - offset} r="2" fill="#15a15a"/>
+      </g>
+      <g transform="translate(24 22)"><rect width="118" height="29" rx="14.5" fill="rgba(255,255,255,.92)" stroke="rgba(21,155,88,.20)"/><circle cx="17" cy="14.5" r="4" fill="#15a15a"><animate attributeName="opacity" values=".4;1;.4" dur="1.8s" repeatCount="indefinite"/></circle><text x="29" y="18.5" fill="#28513a" fontFamily="Arial" fontSize="11" fontWeight="700">DRIVER EN ROUTE</text></g>
     </svg>
   );
 }
@@ -1806,7 +1838,7 @@ export default function App() {
         />
       )}
       {screen === 'auth' && (
-        <AuthFlow view={authView} setView={setAuthView} onDone={() => setScreen('app')} />
+        <AuthFlow view={authView} setView={setAuthView} onDone={() => setScreen('app')} onBack={() => setScreen('landing')} />
       )}
       {screen === 'app' && (
         <AppShell onLogout={() => setScreen('landing')} />

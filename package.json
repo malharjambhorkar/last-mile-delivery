@@ -1,5 +1,6 @@
 {
-  "name": "fleetly-delivery-platform",
+  "name": "fleetly-last-mile-delivery",
+  "description": "A polished React experience for last-mile delivery operations, route optimization, and customer tracking.",
   "private": true,
   "version": "1.0.0",
   "type": "module",
