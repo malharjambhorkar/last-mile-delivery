@@ -11,6 +11,8 @@ Explore the deployed application: [last-mile-delivery-kappa.vercel.app](https://
 - Interactive AI route planner with animated route results and delivery metrics.
 - Customer-facing tracking experience with live delivery status, driver detail, ETA, and animated city route map.
 - Operations workspace for dashboard, orders, tracking, route optimization, fleet, and dispatch workflows.
+- Delivery quote preview with B2B/B2C, prepaid/COD, zone detection, volumetric-weight billing, and configurable rate cards.
+- No-login operations-console preview from the homepage, so evaluators can inspect every dashboard feature immediately.
 - Light-first visual system with glass surfaces, responsive layouts, motion-safe scroll reveals, and accessible focus states.
 - Fully client-side prototype data and interactions; no backend is required to explore the experience.
 
@@ -38,6 +40,14 @@ fleetly-last-mile-delivery/
 ```
 
 Additional delivery-platform implementation notes are in [docs/api.md](docs/api.md) and [docs/system-design.md](docs/system-design.md). Copy [.env.example](.env.example) before connecting a backend.
+
+### Folder guide
+
+- `src/` — React entry point, product UI, mock domain data, pricing logic, and dashboard modules.
+- `public/` — Static browser assets such as the delivery hero visual.
+- `docs/` — API contract and system-design documentation.
+- `.env.example` — Environment variable names needed when a backend and notification providers are connected.
+- `dist/` — Generated production output; recreated by `npm run build` and intentionally ignored by Git.
 
 ## Getting started
 
@@ -73,7 +83,7 @@ Vite will print the local URL in the terminal, normally `http://localhost:5173`.
 
 ### Operations console
 
-After completing an authentication action, the app opens an operations workspace with dashboard, orders, shipment tracking, AI route optimization, fleet, and dispatch modules.
+Use **Try the full operations console** on the homepage to open the workspace without authentication. It includes dashboard, orders, shipment tracking, AI route optimization, fleet, dispatch, and Zones & Rate Cards. Login remains available as a separate prototype flow.
 
 ## Notes for production integration
 

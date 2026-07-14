@@ -235,6 +235,9 @@ function GlobalStyle() {
       .ls-nav-link:hover::after { transform:scaleX(1); }
       .ls-nav-cta { box-shadow:0 10px 22px rgba(21,155,88,.23); }
       .ls-nav-cta:hover { box-shadow:0 14px 30px rgba(21,155,88,.32); }
+      @keyframes ls-console-pulse { 0%,100% { box-shadow:0 14px 28px rgba(21,155,88,.28); } 50% { box-shadow:0 18px 42px rgba(21,155,88,.52), 0 0 0 8px rgba(21,155,88,.08); } }
+      .ls-console-cta { font-size:1.08rem !important; font-weight:700 !important; padding:1.18rem 1.75rem !important; box-shadow:0 14px 28px rgba(21,155,88,.28); animation:ls-console-pulse 2.5s ease-in-out infinite; }
+      .ls-console-cta:hover { transform:translateY(-3px) scale(1.02) !important; }
       .ls-stat-card { position:relative; overflow:hidden; transition:transform .3s cubic-bezier(.16,1,.3,1), background .3s ease; }
       .ls-stat-card::before { content:''; position:absolute; width:150px; height:150px; border-radius:50%; right:-70px; top:-100px; background:radial-gradient(circle, rgba(21,155,88,.16), transparent 70%); opacity:0; transition:opacity .3s ease; }
       .ls-stat-card:hover { transform:translateY(-5px); background:rgba(255,255,255,.92) !important; }
@@ -336,7 +339,7 @@ function RevealLetters({ text, stagger = 0.045 }) {
 /* ============================================================ */
 /*  UI ATOMS                                                     */
 /* ============================================================ */
-function Btn({ children, variant = 'solid', size = 'md', icon: Icon, onClick, type = 'button', style, full, disabled }) {
+function Btn({ children, variant = 'solid', size = 'md', icon: Icon, onClick, type = 'button', style, full, disabled, className = '' }) {
   const sizes = { sm: { padding: '.55rem 1rem', fontSize: '.82rem' }, md: { padding: '.85rem 1.6rem', fontSize: '.92rem' }, lg: { padding: '1.15rem 2.2rem', fontSize: '1.02rem' } };
   const base = {
     fontFamily: FONT_SANS, fontWeight: 500, letterSpacing: '.01em', borderRadius: 9999,
@@ -357,7 +360,7 @@ function Btn({ children, variant = 'solid', size = 'md', icon: Icon, onClick, ty
       data-cursor-hover={disabled ? undefined : true}
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
-      className="ls-btn-focus"
+      className={`ls-btn-focus ${className}`}
       style={{ ...base, ...variants[variant], ...style, ...(disabled ? { opacity: 0.4, cursor: 'not-allowed' } : {}) }}
       onMouseEnter={(e) => { if (disabled) return; if (variant === 'ghost') { e.currentTarget.style.background = C.accentSoft; e.currentTarget.style.color = C.text; } if (variant === 'dark') { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = '#ffffff'; } if (variant === 'solid') e.currentTarget.style.transform = 'translateY(-2px)'; }}
       onMouseLeave={(e) => { if (disabled) return; if (variant === 'ghost' || variant === 'dark') { e.currentTarget.style.background = variants[variant].background; e.currentTarget.style.color = variants[variant].color; } if (variant === 'solid') e.currentTarget.style.transform = 'translateY(0)'; }}
@@ -550,7 +553,7 @@ function Hero({ onSignup, onExplore }) {
           Fleetly unifies dispatch, fleet, warehouse and last-mile tracking into one AI-driven platform — built for teams moving thousands of packages a day.
         </p>
         <div className="ls-fadeup" style={{ display: 'flex', gap: '1rem', marginTop: '2.4rem', animationDelay: '.65s', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Btn size="lg" onClick={onExplore} icon={Play}>Explore operations console</Btn>
+          <Btn className="ls-console-cta" size="lg" onClick={onExplore} icon={Play}>Try the full operations console</Btn>
           <Btn size="lg" variant="ghost" onClick={() => document.getElementById('customer-tracking')?.scrollIntoView({ behavior: 'smooth' })}>Track a delivery</Btn>
         </div>
         <div className="ls-fadeup" style={{ display: 'flex', gap: '.9rem', marginTop: '1.6rem', animationDelay: '.8s', alignItems: 'center', color: C.faint, fontSize: '.85rem' }}>
