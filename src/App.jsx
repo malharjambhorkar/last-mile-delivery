@@ -193,6 +193,7 @@ function GlobalStyle() {
       .ls-cursor-ring.expanded { border-color:rgba(255,255,255,.15); }
 
       .ls-input:focus, .ls-btn-focus:focus-visible { outline: 2px solid ${C.accent}; outline-offset: 2px; }
+      .ls-input::placeholder { color: ${C.faint}; opacity: 1; }
       @media (max-width: 860px) { .ls-hide-mobile { display: none !important; } }
       .ls-feature-card:hover { border-color: rgba(21,155,88,.35) !important; transform: translateY(-6px); box-shadow:0 18px 42px rgba(23,52,38,.09); }
       .ls-root button { font-family:${FONT_SANS}; }
@@ -296,9 +297,9 @@ function Btn({ children, variant = 'solid', size = 'md', icon: Icon, onClick, ty
   };
   const variants = {
     solid: { background: C.accent, color: '#000', boxShadow: '0 4px 24px rgba(57,255,20,.18)' },
-    ghost: { background: 'transparent', color: '#fff', border: `1px solid ${C.borderStrong}` },
-    dark: { background: '#000', color: '#fff', border: `1px solid ${C.borderStrong}` },
-    subtle: { background: 'rgba(255,255,255,.06)', color: '#fff' },
+    ghost: { background: '#ffffff', color: C.text, border: `1px solid ${C.borderStrong}` },
+    dark: { background: C.text, color: '#ffffff', border: `1px solid ${C.borderStrong}` },
+    subtle: { background: C.cardAlt, color: C.text },
     danger: { background: 'rgba(255,92,92,.12)', color: C.danger, border: `1px solid rgba(255,92,92,.3)` },
   };
   return (
@@ -309,8 +310,8 @@ function Btn({ children, variant = 'solid', size = 'md', icon: Icon, onClick, ty
       disabled={disabled}
       className="ls-btn-focus"
       style={{ ...base, ...variants[variant], ...style, ...(disabled ? { opacity: 0.4, cursor: 'not-allowed' } : {}) }}
-      onMouseEnter={(e) => { if (disabled) return; if (variant === 'ghost' || variant === 'dark') { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#000'; } if (variant === 'solid') e.currentTarget.style.transform = 'translateY(-2px)'; }}
-      onMouseLeave={(e) => { if (disabled) return; if (variant === 'ghost' || variant === 'dark') { e.currentTarget.style.background = variants[variant].background; e.currentTarget.style.color = '#fff'; } if (variant === 'solid') e.currentTarget.style.transform = 'translateY(0)'; }}
+      onMouseEnter={(e) => { if (disabled) return; if (variant === 'ghost') { e.currentTarget.style.background = C.accentSoft; e.currentTarget.style.color = C.text; } if (variant === 'dark') { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = '#ffffff'; } if (variant === 'solid') e.currentTarget.style.transform = 'translateY(-2px)'; }}
+      onMouseLeave={(e) => { if (disabled) return; if (variant === 'ghost' || variant === 'dark') { e.currentTarget.style.background = variants[variant].background; e.currentTarget.style.color = variants[variant].color; } if (variant === 'solid') e.currentTarget.style.transform = 'translateY(0)'; }}
     >
       {Icon ? <Icon size={16} /> : null}
       {children}
@@ -320,7 +321,7 @@ function Btn({ children, variant = 'solid', size = 'md', icon: Icon, onClick, ty
 
 function Badge({ children, tone = 'default' }) {
   const tones = {
-    default: { bg: 'rgba(255,255,255,.08)', fg: C.mute },
+    default: { bg: C.cardAlt, fg: C.mute },
     good: { bg: C.accentSoft, fg: C.accent },
     warn: { bg: 'rgba(255,194,75,.14)', fg: C.warn },
     danger: { bg: 'rgba(255,92,92,.14)', fg: C.danger },
@@ -357,8 +358,8 @@ function Field({ label, children }) {
 }
 
 const inputStyle = {
-  width: '100%', background: '#0a0a0a', border: `1px solid ${C.border}`, borderRadius: 9,
-  padding: '.75rem .9rem', color: '#fff', fontFamily: FONT_SANS, fontSize: '.9rem',
+  width: '100%', background: '#ffffff', border: `1px solid ${C.borderStrong}`, borderRadius: 9,
+  padding: '.75rem .9rem', color: C.text, fontFamily: FONT_SANS, fontSize: '.9rem',
 };
 
 function TextInput(props) { return <input {...props} className="ls-input" style={{ ...inputStyle, ...(props.style||{}) }} />; }
@@ -366,8 +367,8 @@ function Select({ children, ...props }) { return <select {...props} className="l
 
 function Toggle({ checked, onChange, label }) {
   return (
-    <button data-cursor-hover type="button" onClick={() => onChange(!checked)} style={{ display: 'flex', alignItems: 'center', gap: '.6rem', background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontFamily: FONT_SANS, fontSize: '.85rem', padding: 0 }}>
-      <span style={{ width: 36, height: 20, borderRadius: 999, background: checked ? C.accent : 'rgba(255,255,255,.15)', position: 'relative', transition: 'background .25s', flexShrink: 0 }}>
+    <button data-cursor-hover type="button" onClick={() => onChange(!checked)} style={{ display: 'flex', alignItems: 'center', gap: '.6rem', background: 'none', border: 'none', cursor: 'pointer', color: C.text, fontFamily: FONT_SANS, fontSize: '.85rem', padding: 0 }}>
+      <span style={{ width: 36, height: 20, borderRadius: 999, background: checked ? C.accent : C.borderStrong, position: 'relative', transition: 'background .25s', flexShrink: 0 }}>
         <span style={{ position: 'absolute', top: 2, left: checked ? 18 : 2, width: 16, height: 16, borderRadius: '50%', background: checked ? '#000' : '#fff', transition: 'left .25s' }} />
       </span>
       {label}
@@ -453,11 +454,12 @@ function RouteCanvas() {
 function Nav({ onLogin, onSignup }) {
   const [open, setOpen] = useState(false);
   const links = ['Product', 'Routing AI', 'Pricing', 'FAQ'];
+  const destinations = { Product: 'routing-ai', 'Routing AI': 'routing-ai', Pricing: 'pricing', FAQ: 'faq' };
   return (
     <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.3rem 2.5rem', background: 'rgba(247,251,247,.82)', backdropFilter: 'blur(14px)', borderBottom: `1px solid ${C.border}` }}>
       <div style={{ fontFamily: FONT_GEN, fontSize: '1.3rem', fontWeight: 600, letterSpacing: '-.02em' }}>Fleetly</div>
       <div className="ls-hide-mobile" style={{ display: 'flex', gap: '2.2rem' }}>
-        {links.map(l => <a key={l} data-cursor-hover href={`#${l.toLowerCase().replace(' ', '-')}`} style={{ fontSize: '.9rem', color: C.mute, textDecoration: 'none' }}>{l}</a>)}
+        {links.map(l => <a key={l} data-cursor-hover href={`#${destinations[l]}`} onClick={(e) => { e.preventDefault(); document.getElementById(destinations[l])?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} style={{ fontSize: '.9rem', color: C.mute, textDecoration: 'none' }}>{l}</a>)}
       </div>
       <div style={{ display: 'flex', gap: '.8rem', alignItems: 'center' }}>
         <a data-cursor-hover onClick={onLogin} style={{ fontSize: '.9rem', cursor: 'pointer', color: C.text }}>Log in</a>
@@ -542,7 +544,7 @@ function LogosStrip() {
       <p style={{ textAlign: 'center', color: C.faint, fontSize: '.8rem', letterSpacing: '.1em', marginBottom: '1.8rem' }}>TRUSTED BY OPERATIONS TEAMS AT</p>
       <div className="ls-marquee-track">
         {items.map((l, i) => (
-          <div key={i} style={{ padding: '0 3rem', fontFamily: FONT_GEN, fontSize: '1.15rem', color: 'rgba(255,255,255,.32)', whiteSpace: 'nowrap', letterSpacing: '.04em' }}>{l}</div>
+          <div key={i} style={{ padding: '0 3rem', fontFamily: FONT_GEN, fontSize: '1.15rem', color: C.faint, whiteSpace: 'nowrap', letterSpacing: '.04em' }}>{l}</div>
         ))}
       </div>
     </section>
@@ -551,7 +553,7 @@ function LogosStrip() {
 
 function FeaturesSection() {
   return (
-    <section id="product" style={{ padding: '7rem 1.5rem', borderBottom: `1px solid ${C.border}` }}>
+    <section id="routing-ai" style={{ padding: '7rem 1.5rem', borderBottom: `1px solid ${C.border}`, scrollMarginTop: 84 }}>
       <div style={{ maxWidth: 620, margin: '0 auto', textAlign: 'center' }}>
         <SectionEyebrow>Platform</SectionEyebrow>
         <h2 style={{ fontFamily: FONT_SERIF, fontSize: 'clamp(1.9rem,3.4vw,2.8rem)', fontWeight: 400, lineHeight: 1.2 }}>Every part of the delivery chain, one screen.</h2>
@@ -603,14 +605,14 @@ function PricingSection() {
       </div>
       <div style={{ maxWidth: 1020, margin: '3.5rem auto 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px,1fr))', gap: '1.2rem', alignItems: 'stretch' }}>
         {PRICING.map((p, i) => (
-          <div key={i} style={{ background: p.highlight ? '#0c130c' : C.card, border: `1px solid ${p.highlight ? C.accentBorder : C.border}`, borderRadius: 16, padding: '2rem', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          <div key={i} style={{ background: p.highlight ? '#e8f8ed' : C.card, border: `1px solid ${p.highlight ? C.accentBorder : C.border}`, borderRadius: 16, padding: '2rem', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: p.highlight ? '0 18px 44px rgba(21,155,88,.11)' : 'none' }}>
             {p.highlight && <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)' }}><Badge tone="good">Most popular</Badge></div>}
             <h3 style={{ fontFamily: FONT_GEN, fontSize: '1.1rem', color: C.mute, marginBottom: '.6rem' }}>{p.tier}</h3>
             <div style={{ fontFamily: FONT_SERIF, fontSize: '2.6rem' }}>{p.price}</div>
             <p style={{ color: C.faint, fontSize: '.82rem', marginBottom: '1.6rem' }}>{p.period}</p>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '.7rem', marginBottom: '1.8rem' }}>
               {p.features.map((f, k) => (
-                <div key={k} style={{ display: 'flex', gap: '.6rem', alignItems: 'flex-start', fontSize: '.87rem', color: '#e8e8e8' }}>
+                <div key={k} style={{ display: 'flex', gap: '.6rem', alignItems: 'flex-start', fontSize: '.87rem', color: C.text }}>
                   <CheckCircle2 size={15} color={C.accent} style={{ marginTop: 2, flexShrink: 0 }} /> {f}
                 </div>
               ))}
@@ -634,7 +636,7 @@ function FaqSection() {
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         {FAQS.map((f, i) => (
           <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
-            <button data-cursor-hover onClick={() => setOpen(open === i ? -1 : i)} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#fff', padding: '1.3rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontFamily: FONT_GEN, fontSize: '1rem' }}>
+            <button data-cursor-hover onClick={() => setOpen(open === i ? -1 : i)} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', color: C.text, padding: '1.3rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontFamily: FONT_GEN, fontSize: '1rem' }}>
               {f.q}
               {open === i ? <ChevronUp size={18} color={C.faint} /> : <ChevronDown size={18} color={C.faint} />}
             </button>
@@ -1724,7 +1726,6 @@ export default function App() {
   return (
     <div className="ls-root ls-scrollbar" style={{ minHeight: '100vh', position: 'relative' }}>
       <GlobalStyle />
-      <CustomCursor />
       {screen === 'landing' && (
         <LandingPage
           onLogin={() => { setAuthView('login'); setScreen('auth'); }}
